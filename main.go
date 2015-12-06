@@ -46,6 +46,7 @@ func Execute(cmd string) (result interface{}, err error) {
 		return
 	}
 	var store Store
+	make(store)
 
 	c := strings.ToUpper(args[0])
 	k1 := args[1]
