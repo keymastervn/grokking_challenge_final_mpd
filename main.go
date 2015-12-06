@@ -126,6 +126,7 @@ func Execute(cmd string) (result interface{}, err error) {
 		result = store.SAVE()
 	case "RESTORE":
 		store = *RESTORE()
+		result = OK
 	case "EXPIRE":
 		var timeOut int64
 		timeOut, err = strconv.ParseInt(args[2], 10, 64)
