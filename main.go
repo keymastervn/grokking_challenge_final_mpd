@@ -44,17 +44,26 @@ func ledis(c *gin.Context) {
 }
 
 func Execute(cmd string) (result interface{}, err error) {
+	if len(cmd) == 0 {
+		err = errors.New("ECOM")
+		return
+	}
+
 	args := strings.Split(cmd, " ")
 	if len(args) == 0 {
 		err = errors.New("ECOM")
 		return
 	}
+	var k1 string
 
 	c := strings.ToUpper(args[0])
-	k1 := args[1]
-	if k1 != strings.ToLower(k1) {
-		err = errors.New("EKTYP")
-		return
+	if c != "SAVE" || c != "RESTORE" {
+		k1 = args[1]
+
+		if k1 != strings.ToLower(k1) {
+			err = errors.New("EKTYP")
+			return
+		}
 	}
 
 	switch c {
