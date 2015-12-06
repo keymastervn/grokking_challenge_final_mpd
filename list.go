@@ -3,7 +3,7 @@ package main
 import "errors"
 
 const OK = "OK"
-const NOTEXIST = "NOTEXISTGROKKING#6"
+const NOTEXIST = "EKTYP"
 
 func (s *Store) LLEN(key string) int {
 	return len((*s)[key].([]interface{}))

@@ -71,26 +71,17 @@ func ledis(c *gin.Context) {
 }
 
 func Execute(cmd string) (result interface{}, err error) {
-	if len(cmd) == 0 {
-		err = errors.New("ECOM")
-		return
-	}
-
 	args := strings.Split(cmd, " ")
 	if len(args) == 0 {
 		err = errors.New("ECOM")
 		return
 	}
-	var k1 string
 
 	c := strings.ToUpper(args[0])
-	if c != "SAVE" || c != "RESTORE" {
-		k1 = args[1]
-
-		if k1 != strings.ToLower(k1) {
-			err = errors.New("EKTYP")
-			return
-		}
+	k1 := args[1]
+	if k1 != strings.ToLower(k1) {
+		err = errors.New("EKTYP")
+		return
 	}
 
 	switch c {
@@ -113,6 +104,8 @@ func Execute(cmd string) (result interface{}, err error) {
 	case "SADD":
 		result = store.SADD(k1, args[2:]...)
 		// return store.SADD(args)
+	case "SCARD":
+		result = store.SCARD(k1)
 	case "SMEMBERS":
 		result = store.SMEMBERS(k1)
 	case "SREM":
@@ -161,10 +154,6 @@ func Execute(cmd string) (result interface{}, err error) {
 		store = make(Store)
 		delete(keyInfos, k1)
 		result = OK
-	}
-
-	if result == NOTEXIST {
-		err = errors.New("EKTYP")
 	}
 
 	return
