@@ -8,9 +8,8 @@ import (
 )
 
 type KeyInfo struct {
-	Key       string
 	Timeout   int
-	CreatedAt *time.Time
+	CreatedAt time.Time
 }
 
 func (s *Store) SAVE() string {

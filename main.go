@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,12 +14,38 @@ type Command struct {
 }
 
 var store Store
+var keyInfos map[string]*KeyInfo
 
 func main() {
 	store = make(Store)
 	r := gin.Default()
 
 	r.POST("/ledis", ledis)
+	timeout := make(chan bool, 1)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		timeout <- true
+	}()
+
+	go func() {
+		select {
+		case <-timeout:
+			for k, v := range keyInfos {
+				expired := v.CreatedAt
+				for i := 0; i < v.Timeout; i++ {
+					expired = expired.Add(1 * time.Second)
+				}
+
+				if time.Now().Sub(expired).Seconds() >= 0 {
+					store.DEL(k)
+				}
+
+			}
+			// the read from ch has timed out
+		}
+	}()
+
 	r.Run(":80")
 }
 
@@ -104,13 +131,35 @@ func Execute(cmd string) (result interface{}, err error) {
 	case "RESTORE":
 		store = *RESTORE()
 	case "EXPIRE":
+		var timeOut int64
+		timeOut, err = strconv.ParseInt(args[2], 10, 64)
+		if err != nil {
+			err = errors.New("EKTYP")
+			return
+		}
+		keyInfo := KeyInfo{
+			Timeout:   int(timeOut),
+			CreatedAt: time.Now(),
+		}
+		if _, ok := keyInfos[k1]; ok {
+			result = 1
+		} else {
+			result = 0
+		}
+		keyInfos[k1] = &keyInfo
 		// return store.EXPIRE(k1, args[2])
 	case "TTL":
-		// return store.TTL(k1)
+		if keyInfo, ok := keyInfos[k1]; ok {
+			result = keyInfo.Timeout
+		} else {
+			result = 0
+		}
 	case "DEL":
 		result = store.DEL(k1)
+		delete(keyInfos, k1)
 	case "FLUSHDB":
 		store = make(Store)
+		delete(keyInfos, k1)
 		result = OK
 	}
 
