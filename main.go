@@ -12,8 +12,12 @@ type Command struct {
 	Cmd string `json:"command"`
 }
 
+var store Store
+
 func main() {
+	store = make(Store)
 	r := gin.Default()
+
 	r.POST("/ledis", ledis)
 	r.Run(":80")
 }
@@ -45,7 +49,6 @@ func Execute(cmd string) (result interface{}, err error) {
 		err = errors.New("ECOM")
 		return
 	}
-	var store = make(Store)
 
 	c := strings.ToUpper(args[0])
 	k1 := args[1]
@@ -72,31 +75,34 @@ func Execute(cmd string) (result interface{}, err error) {
 		stop, _ := strconv.Atoi(args[3])
 		result, err = store.LRANGE(k1, start, stop)
 	case "SADD":
+		result = store.SADD(k1, args[2:]...)
 		// return store.SADD(args)
 	case "SMEMBERS":
-		// return store.SMEMBERS(k1)
+		result = store.SMEMBERS(k1)
 	case "SREM":
 		// return store.SREM(args)
 	case "SINTER":
-		for _, key := range args {
-			if key != strings.ToLower(key) {
+		for _, k := range args[2:] {
+			if k != strings.ToLower(k) {
 				err = errors.New("EKTYP")
 				return
 			}
 		}
-		// return store.SINTER(args)
+
+		result = store.SINTER(args[1:]...)
 	case "SAVE":
-		// return store.SAVE()
+		result = store.SAVE()
 	case "RESTORE":
-		// return store.RESTORE()
+		store = *RESTORE()
 	case "EXPIRE":
 		// return store.EXPIRE(k1, args[2])
 	case "TTL":
 		// return store.TTL(k1)
 	case "DEL":
-		// return store.DEL(k1)
+		result = store.DEL(k1)
 	case "FLUSHDB":
-		// return store.FLUSHDB()
+		store = make(Store)
+		result = OK
 	}
 
 	return
