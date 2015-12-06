@@ -163,5 +163,9 @@ func Execute(cmd string) (result interface{}, err error) {
 		result = OK
 	}
 
+	if result == NOTEXIST {
+		err = errors.New("EKTYP")
+	}
+
 	return
 }

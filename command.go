@@ -8,5 +8,8 @@ func (s *Store) StringSet(key string, value string) string {
 }
 
 func (s *Store) StringGet(key string) string {
+	if (*s)[key] == nil {
+		return NOTEXIST
+	}
 	return (*s)[key].(string)
 }
