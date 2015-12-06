@@ -78,10 +78,13 @@ func Execute(cmd string) (result interface{}, err error) {
 	}
 
 	c := strings.ToUpper(args[0])
-	k1 := args[1]
-	if k1 != strings.ToLower(k1) {
-		err = errors.New("EKTYP")
-		return
+	k1 := ""
+	if c != "SAVE" && c != "RESTORE" && c != "FLUSHDB" {
+		k1 = args[1]
+		if k1 != strings.ToLower(k1) {
+			err = errors.New("EKTYP")
+			return
+		}
 	}
 
 	switch c {
