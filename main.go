@@ -45,8 +45,7 @@ func Execute(cmd string) (result interface{}, err error) {
 		err = errors.New("ECOM")
 		return
 	}
-	var store Store
-	make(store)
+	var store = make(Store)
 
 	c := strings.ToUpper(args[0])
 	k1 := args[1]
